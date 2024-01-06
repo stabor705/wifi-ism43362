@@ -17,10 +17,11 @@
 #include <cstdint>
 #include <inttypes.h>
 #include "ISM43362.h"
+#include "ThisThread.h"
 #include "mbed_debug.h"
 
 // activate / de-activate debug
-#define ism_debug 0
+#define ism_debug 1
 
 /* The minimum FW version to have AP scan one by one is C3.5.2.5 (ATcommand F0=2) */
 #define SINGLE_AP_SCAN_FW_VERSION_NUMBER 3525
@@ -898,4 +899,54 @@ uint32_t ISM43362::startOpenAP() {
     debug_if(_ism_debug, "\tISM43362:A0 success \r\n");
     debug_if(_ism_debug, "\tISM43362: OpenAP started!!!\r\n");
     return 1;
+}
+
+void ISM43362::send_command(const char *command) {
+    if(!(_parser.send(command) && check_response())){
+        debug_if(_ism_debug, "Failed command %s", command);
+    }
+}
+
+uint32_t ISM43362::startSoftAp(){
+    char tmp_buffer[250];
+    reset();
+    if(!(_parser.send("AS=0,embedded") && check_response())){
+        debug_if(_ism_debug, "\tFailed to set ssid\n");
+        return 0;
+    }
+    debug_if(_ism_debug, "\tISM43362: AS  succes!\r\n");
+
+    if(!(_parser.send("A1=4") && check_response())){
+        debug_if(_ism_debug, "\tISM43362: Failed to set encryption!!!\r\n");
+        return 0;
+    }
+    if(!(_parser.send("A2=aghiot")) && check_response()) {
+        debug_if(_ism_debug, "\tISM43362: setting open wifi failed\r\n");
+        return 0;
+    }
+    debug_if(_ism_debug, "\tISM43362::WPA2 key set successful");
+
+    if (!(_parser.send("AD")) && check_response()) {
+        debug_if(_ism_debug, "\tISM43362: open AP and DHCP failed");
+        return 0;
+    }
+    return 1;
+
+}
+
+uint32_t ISM43362::open_pairing_socket() {
+    send_command("PK=0,3000"); // Disable TCP keep alive
+    send_command("P1=0"); // Use TCP
+    send_command("P2=8080"); // Use port 8080
+    send_command("P8=1");
+    send_command("P5=1");
+
+    char buf[255];
+    while (true) {
+        ThisThread::sleep_for(2000);
+        send_command("MR");
+        _parser.recv("%[^\n^\r]\r\n", buf);
+        debug_if(_ism_debug, "Received TCP: %s", buf);
+        buf[0] = '\0';
+    }
 }

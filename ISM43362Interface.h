@@ -153,6 +153,9 @@ public:
     uint32_t startOpenAP() {
         return _ism.startOpenAP();
     }
+    uint32_t startSoftAp(){
+        return _ism.startSoftAp();
+    }
 
 protected:
     /** Open a socket

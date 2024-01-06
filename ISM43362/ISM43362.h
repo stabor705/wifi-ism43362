@@ -227,7 +227,11 @@ public:
      */
     nsapi_connection_status_t connection_status() const;
 
+    void send_command(const char *command);
+
     uint32_t startOpenAP();
+    uint32_t startSoftAp();
+    uint32_t open_pairing_socket();
 
 
 private:
