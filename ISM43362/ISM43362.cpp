@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <cstdint>
 #include <inttypes.h>
 #include "ISM43362.h"
 #include "mbed_debug.h"
@@ -884,4 +885,17 @@ nsapi_connection_status_t ISM43362::connection_status() const
 {
     debug_if(_ism_debug, "\tISM43362: connection_status %d\n", _conn_status);
     return _conn_status;
+}
+
+uint32_t ISM43362::startOpenAP() {
+    reset();
+
+    if (!(_parser.send("A0")) && check_response()) {
+        debug_if(_ism_debug, "\tISM43362: openAP and DHCP filed\r\n");
+        return 0;
+    }
+
+    debug_if(_ism_debug, "\tISM43362:A0 success \r\n");
+    debug_if(_ism_debug, "\tISM43362: OpenAP started!!!\r\n");
+    return 1;
 }

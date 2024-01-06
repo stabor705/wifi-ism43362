@@ -17,6 +17,7 @@
 #ifndef ISM43362_H
 #define ISM43362_H
 #include "ATParser.h"
+#include <cstdint>
 
 #define ES_WIFI_MAX_SSID_NAME_SIZE                  32
 #define ES_WIFI_MAX_PSWD_NAME_SIZE                  32
@@ -225,6 +226,8 @@ public:
      *  @return         The connection status according to ConnectionStatusType
      */
     nsapi_connection_status_t connection_status() const;
+
+    uint32_t startOpenAP();
 
 
 private:

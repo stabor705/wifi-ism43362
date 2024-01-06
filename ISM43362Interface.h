@@ -19,6 +19,7 @@
 
 #include "mbed.h"
 #include "ISM43362.h"
+#include <cstdint>
 
 
 #define ISM43362_SOCKET_COUNT 4
@@ -148,6 +149,10 @@ public:
      *  @return         The connection status according to ConnectionStatusType
      */
     virtual nsapi_connection_status_t get_connection_status() const;
+
+    uint32_t startOpenAP() {
+        return _ism.startOpenAP();
+    }
 
 protected:
     /** Open a socket
